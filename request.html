@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Blood</title>
+    <link rel="stylesheet" href="./blood.css">  <!-- Linking external CSS file for styling -->
+</head>
+<body>
+    <header>
+        <h1>BLOOD BUCKET</h1>  <!-- Website title -->
+        <nav>  <!-- Navigation menu -->
+            <a href="./index.html">Home</a>
+            <a href="./register.html">Register as Donor</a>
+            <a href="./request.html">Request Blood</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Request Blood</h2>
+        <div id="message"></div>  <!-- Placeholder for displaying messages -->
+        <div id="donorDetails"></div>  <!-- Placeholder for displaying donor details -->
+
+        <!-- Form to request blood -->
+        <form method="POST" onsubmit="return submitForm(event)">
+            <!-- Input field for requester's name -->
+            <label for="name">Your Name:</label>
+            <input type="text" id="name" name="name" required>
+
+            <!-- Dropdown for selecting required blood group -->
+            <label for="blood_group">Blood Group:</label>
+            <select id="blood_group" name="blood_group" required>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+            </select>
+
+            <!-- Submit button to check blood availability -->
+            <button type="submit">Check Availability</button>
+        </form>
+    </main>
+
+    <script>
+        function submitForm(event) {
+            event.preventDefault();  // Prevents page reload on form submission
+
+            const form = event.target;  // Get the form element
+            const formData = new FormData(form);  // Collect form data
+
+            fetch('/request.html', {  // Sending form data to the server
+                method: 'POST',
+                body: new URLSearchParams(formData)  // Converting form data to URL-encoded format
+            })
+            .then(response => response.json())  // Parsing server response as JSON
+            .then(data => {
+                document.getElementById('message').innerText = data.message;  // Display response message
+                
+                if (data.donors) {  // If donors are available, display their details
+                    let donorDetails = "<h3>Available Donors:</h3>";
+                    data.donors.forEach(donor => {
+                        donorDetails += `
+                            <p><strong>Name:</strong> ${donor.name}</p>
+                            <p><strong>Mobile:</strong> ${donor.mobile}</p>
+                            <p><strong>Address:</strong> ${donor.address}</p>
+                            <hr>
+                        `;
+                    });
+                    document.getElementById('donorDetails').innerHTML = donorDetails;  // Update donor details section
+                }
+            })
+            .catch(error => console.error('Error:', error));  // Handling errors
+        }
+    </script>
+</body>
+</html>
